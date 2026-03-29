@@ -1,0 +1,10 @@
+tech docs/
+.claude/
+aralmate_extracted/
+AralMate_Build_Review_v1.0.docx
+extracted_content.txt
+generate_build_doc.py
+system_prompt_section.txt
+.DS_Store
+Thumbs.db
+*.log
