@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find . -type d -iname *doc* -o -type d -iname *tech* -o -type d -iname *documentation*)",
+      "Bash(grep -i \"function\\\\|const\\\\|let\\\\|//.*\" \"/d/tutor/tech docs/aralmate_mvp_v3.html\")",
+      "Bash(pandoc --track-changes=all \"D:/tutor/tech docs/aralmate_mvp_v3_documentation.docx\" -o /tmp/aralmate_docs.md)",
+      "Bash(python3 -c \"import zipfile, os; z = zipfile.ZipFile\\(''D:/tutor/tech docs/aralmate_mvp_v3_documentation.docx''\\); z.extractall\\(''/tmp/docx_unpacked''\\); print\\(''Extracted:'', os.listdir\\(''/tmp/docx_unpacked''\\)\\)\")",
+      "Bash(py --version)",
+      "Bash(where python:*)",
+      "Bash(where py:*)",
+      "Bash(py -c \"import zipfile, xml.etree.ElementTree as ET, re; z = zipfile.ZipFile\\(''D:/tutor/tech docs/aralmate_mvp_v3_documentation.docx''\\); content = z.read\\(''word/document.xml''\\).decode\\(''utf-8''\\); tree = ET.fromstring\\(content\\); ns = {''w'': ''http://schemas.openxmlformats.org/wordprocessingml/2006/main''}; texts = []; [texts.append\\(t.text\\) for t in tree.findall\\(''.//w:t'', ns\\) if t.text]; print\\(''\\\\n''.join\\(texts\\)\\)\")",
+      "Bash(py -c \":*)",
+      "Read(//tmp/**)",
+      "Bash(python -m http.server 8000)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8000/aralmate.html)",
+      "Bash(npm list:*)",
+      "Bash(python3 -c \"import docx; print\\(''ok''\\)\")",
+      "Bash(pip install:*)",
+      "Bash(python -m pip install python-docx)",
+      "Bash(python generate_build_doc.py)"
+    ]
+  }
+}
