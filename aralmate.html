@@ -224,6 +224,17 @@ input[type=file]{display:none}
 .name-edit-btn{background:none;border:none;cursor:pointer;font-size:0.85rem;padding:2px 4px;opacity:0.65;transition:opacity .2s}
 .name-edit-btn:hover{opacity:1}
 
+/* SUBJECT SELECTOR */
+.subject-selector{margin:12px 0}
+.subject-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;font-weight:800}
+.subject-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.subject-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px;border-radius:14px;border:2px solid var(--border);background:var(--card);color:var(--night);cursor:pointer;transition:all .18s;font-family:'Nunito',sans-serif}
+.subject-btn:hover{border-color:var(--sky);color:var(--sky)}
+.subject-btn.selected{background:var(--sky);color:#fff;border-color:var(--sky);transform:scale(1.03)}
+.subject-btn-icon{font-size:20px}
+.subject-btn-label{font-size:13px;font-weight:600}
+.upload-btns.locked .up-btn{opacity:0.4;pointer-events:none}
+
 /* TALA FLASH */
 .tala-flash{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#FFF8E0,#FFF3C0);border:2px solid var(--sun);border-radius:50px;padding:8px 18px;font-size:13px;font-weight:800;color:#8B6000;display:none;align-items:center;gap:6px;z-index:100;box-shadow:0 4px 20px rgba(245,166,35,.3);animation:tala-pop .5s cubic-bezier(.34,1.6,.64,1) both}
 @keyframes tala-pop{from{opacity:0;transform:translateX(-50%) scale(.5)}to{opacity:1;transform:translateX(-50%) scale(1)}}
@@ -286,7 +297,28 @@ input[type=file]{display:none}
         <div class="tip-item"><span>📄</span> One page at a time works best</div>
       </div>
     </div>
-    <div class="upload-btns">
+    <div class="subject-selector">
+      <div class="subject-label">Select subject first</div>
+      <div class="subject-btns">
+        <button class="subject-btn" onclick="selectSubject('Filipino', this)">
+          <span class="subject-btn-icon">🇵🇭</span>
+          <span class="subject-btn-label">Filipino</span>
+        </button>
+        <button class="subject-btn" onclick="selectSubject('Araling Panlipunan', this)">
+          <span class="subject-btn-icon">🗺️</span>
+          <span class="subject-btn-label">Araling Panlipunan</span>
+        </button>
+        <button class="subject-btn" onclick="selectSubject('Mathematics', this)">
+          <span class="subject-btn-icon">🔢</span>
+          <span class="subject-btn-label">Mathematics</span>
+        </button>
+        <button class="subject-btn" onclick="selectSubject('Science', this)">
+          <span class="subject-btn-icon">🔬</span>
+          <span class="subject-btn-label">Science</span>
+        </button>
+      </div>
+    </div>
+    <div class="upload-btns locked" id="uploadBtns">
       <label class="up-btn" for="cameraInput">
         <span class="up-btn-icon">📸</span>
         <span class="up-btn-label">Take Photo</span>
@@ -378,6 +410,7 @@ input[type=file]{display:none}
 const WORKER_URL   = "https://aralmate-proxy.maykel-clarin.workers.dev";
 const APP_SECRET   = "aralmate-2026"; // NOTE: visible in page source — acceptable for MVP, do NOT reuse this passphrase elsewhere
 let studentName = 'Estudyante';
+let selectedSubject = null;
 
 // ── STATE ───────────────────────────────────────────────
 let currentImageBase64  = null;
@@ -479,6 +512,13 @@ function updateNameInUI(){
   if(h) h.textContent = `Show me your lesson, ${studentName}!`;
 }
 
+function selectSubject(subject, btn){
+  selectedSubject = subject;
+  document.querySelectorAll('.subject-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('uploadBtns').classList.remove('locked');
+}
+
 function editName(){
   const newName = prompt('Change your name:');
   if(newName && newName.trim()){
@@ -557,6 +597,21 @@ function handleFile(e){
   reader.readAsDataURL(file);
 }
 
+// ── JSON VALIDATION ──────────────────────────────────────
+function validateLessonData(data){
+  const errors = [];
+  if(!data.lesson) errors.push("lesson block missing");
+  if(!data.lesson?.title) errors.push("lesson.title missing");
+  if(!data.lesson?.overview) errors.push("lesson.overview missing");
+  if(!Array.isArray(data.quiz) || data.quiz.length < 3)
+    errors.push(`quiz has ${data.quiz?.length || 0} questions (need at least 3)`);
+  if(!Array.isArray(data.flashcards) || data.flashcards.length < 4)
+    errors.push(`flashcards has ${data.flashcards?.length || 0} cards (need at least 4)`);
+  if(!Array.isArray(data.lesson?.key_terms) || data.lesson.key_terms.length < 1)
+    errors.push("key_terms missing or empty");
+  return errors;
+}
+
 // ── STEP 1: IMAGE QUALITY CHECK ─────────────────────────
 async function startAnalysis(){
   const btn = document.getElementById('analyzeBtn');
@@ -569,24 +624,27 @@ async function startAnalysis(){
   // Step 1 — image quality + topic identification (fast first pass)
   setStep('step1','active','🔍','Checking image quality…');
 
-  const quickPrompt = `Look at this image carefully. It is a photo of a student's school material.
+  const quickPrompt = `You are analyzing school material for ${studentName},
+a Grade 4 student in the Philippines who struggles with reading speed,
+Filipino vocabulary, and reading comprehension.
+The student has already identified this material as: ${selectedSubject}
 
 Respond ONLY with a valid JSON object, no markdown, no extra text:
 {
   "image_quality": "good" | "poor" | "unreadable",
-  "quality_note": "One sentence about image quality if poor or unreadable. Empty string if good.",
+  "quality_note": "One sentence if poor or unreadable. Max 15 words. Empty string if good.",
   "can_read": true | false,
   "topic": "The main topic or concept on this page in 4-6 words",
-  "subject": "The school subject (e.g. Filipino, Mathematics, Science, English, Araling Panlipunan, Mother Tongue)",
-  "grade_level": "Estimated grade level (e.g. Grade 4)",
-  "language_detected": "Primary language of the material (e.g. Filipino, English, Mixed)",
-  "unclear_parts": "Briefly describe any parts that were hard to read due to handwriting or image quality. Empty string if all clear.",
-  "content_density": "simple" | "moderate" | "dense",
-  "focus_area": "The single most important concept to teach from this page. One sentence."
+  "subject": "${selectedSubject}",
+  "language_detected": "Filipino | English | Mixed",
+  "unclear_parts": "Briefly describe parts hard to read. Max 15 words. Empty string if all clear.",
+  "content_density": "simple (one clear concept, under 100 words) | moderate (one main concept with supporting exercises) | dense (multiple concepts, long paragraphs, or more than one distinct section — when in doubt, use dense)",
+  "focus_area": "The single most important concept for a struggling Grade 4 reader on this page. For Filipino: the vocabulary words or grammar rule being introduced. For Araling Panlipunan: the key person, event, or place. For Mathematics: the rule or procedure. For Science: the main concept. Max 20 words.",
+  "vocabulary_spotlight": "Filipino subject only: list 2-3 specific Filipino words from this page that a Grade 4 student with limited vocabulary is most likely not to know. Separate with commas. Empty string for all other subjects."
 }`;
 
   try {
-    const r1 = await callVision(quickPrompt, 400);
+    const r1 = await callVision(quickPrompt, 500);
     const check = JSON.parse(r1.replace(/```json|```/g,'').trim());
 
     setStep('step1','done','✓','Image checked');
@@ -631,7 +689,11 @@ Respond ONLY with a valid JSON object, no markdown, no extra text:
     const r2 = await callVision(fullPrompt, 2500);
     const raw = r2.replace(/```json|```/g,'').trim();
     lessonData = JSON.parse(raw);
-    lessonData._check = check; // store quality metadata
+    lessonData._check = check;
+    const validationErrors = validateLessonData(lessonData);
+    if(validationErrors.length > 0){
+      throw new Error(`Alon's response was incomplete (${validationErrors.join(', ')}). Please try again.`);
+    }
 
     setStep('step4','done','✓','Lesson summary ready!');
     setStep('step5','active','🎮','Building quiz & flashcards…');
@@ -666,13 +728,19 @@ function buildLessonPrompt(check){
   const handwritingNote = check.unclear_parts
     ? `NOTE: Some parts were hard to read (${check.unclear_parts}). Make your best effort but note uncertain parts in the unclear_content field.`
     : '';
+  const vocabNote = check.vocabulary_spotlight
+    ? `VOCABULARY PRIORITY: These Filipino words were flagged as likely unknown to ${studentName}: ${check.vocabulary_spotlight}. Feature these words prominently in key_terms. Give each a very simple definition with a short everyday Filipino example sentence.`
+    : '';
 
   return `You are Alon, a warm and encouraging AI tutor for Filipino Grade 4 students (ages 9-11).
-
-You are analyzing a photo of a student's school material about: "${check.topic}" (${check.subject}, ${check.grade_level}).
+Student profile: ${studentName}, Grade 4, private school Philippines.
+Known struggles: slow reading speed, limited Filipino vocabulary, reading comprehension difficulties.
+Priority subjects: Filipino language and Araling Panlipunan.
+You are analyzing a photo of ${studentName}'s ${selectedSubject} school material about: "${check.topic}".
 ${languageNote}
 ${densityNote}
 ${handwritingNote}
+${vocabNote}
 
 Respond ONLY with a valid JSON object (no markdown, no extra text):
 
@@ -696,34 +764,30 @@ Respond ONLY with a valid JSON object (no markdown, no extra text):
       "Simpler version of point 3",
       "Simpler version of point 4"
     ],
-    "remember_this": "One golden rule or the most important thing to remember. Short, memorable, like a mantra.",
+    "remember_this": "One golden rule or the most important thing to remember. Short, memorable, like a mantra. For Filipino language material, write this in Filipino.",
     "key_terms": [
-      {"term": "Word or concept", "definition": "Super simple definition. Use an example."},
-      {"term": "Word 2", "definition": "Simple definition with example."},
-      {"term": "Word 3", "definition": "Simple definition with example."},
-      {"term": "Word 4", "definition": "Simple definition with example."}
+      // Include 3 to 6 terms depending on complexity. For Filipino: prioritise vocabulary words the student is unlikely to know. For other subjects: include most important concepts.
+      {"term": "Word or concept", "definition": "Super simple definition with a short everyday Filipino example."}
     ]
   },
   "unclear_content": "If any part of the image was unclear or hard to read, briefly mention it here. Empty string if everything was clear.",
   "quiz": [
-    {"question": "Question about the main concept?", "options": ["A","B","C","D"], "correct": 0, "explanation": "Friendly explanation of why this is correct."},
-    {"question": "Question 2?", "options": ["A","B","C","D"], "correct": 1, "explanation": "Explanation."},
-    {"question": "Question 3?", "options": ["A","B","C","D"], "correct": 2, "explanation": "Explanation."},
-    {"question": "Question 4?", "options": ["A","B","C","D"], "correct": 0, "explanation": "Explanation."},
-    {"question": "Question 5?", "options": ["A","B","C","D"], "correct": 3, "explanation": "Explanation."}
+    {"question": "Question testing the main concept?", "options": ["Option A text","Option B text","Option C text","Option D text"], "correct": 2, "explanation": "Friendly explanation of why this is correct. Max 20 words."},
+    {"question": "Question 2?", "options": ["Option A","Option B","Option C","Option D"], "correct": 0, "explanation": "Explanation."},
+    {"question": "Question 3?", "options": ["Option A","Option B","Option C","Option D"], "correct": 3, "explanation": "Explanation."},
+    {"question": "Question 4?", "options": ["Option A","Option B","Option C","Option D"], "correct": 1, "explanation": "Explanation."},
+    {"question": "Question 5?", "options": ["Option A","Option B","Option C","Option D"], "correct": 2, "explanation": "Explanation."}
   ],
   "flashcards": [
-    {"front": "Term or question", "back": "Definition or answer in simple words"},
-    {"front": "Term 2", "back": "Definition 2"},
-    {"front": "Term 3", "back": "Definition 3"},
-    {"front": "Term 4", "back": "Definition 4"},
-    {"front": "Term 5", "back": "Definition 5"},
-    {"front": "Term 6", "back": "Definition 6"},
-    {"front": "Term 7", "back": "Definition 7"},
-    {"front": "Term 8", "back": "Definition 8"}
+    // Exactly 8 flashcards.
+    // For Filipino: alternate Filipino word → English meaning and English word → Filipino meaning. Mix with sentence completion cards.
+    // For Araling Panlipunan: mix person → role/significance with event → date/meaning.
+    // For all other subjects: use concept → explanation pairs.
+    {"front": "Term or question (Filipino word, concept, or person name)", "back": "Definition, translation, or answer in simple words"}
   ]
 }
 
+IMPORTANT for quiz: Vary the correct answer position across all 5 questions. No position (0,1,2,3) should appear more than twice. Do not follow the example positions above — use your own varied distribution.
 Make ALL content appropriate for a Grade 4 Filipino student. Base EVERYTHING strictly on what you can see in the image.`;
 }
 
@@ -1033,6 +1097,9 @@ function resetAll(){
   currentImageBase64 = currentImageType = lessonData = null;
   isSimplified = false; currentCardIndex = 0; cardFlipped = false;
   quizAnswered = {};
+  selectedSubject = null;
+  document.querySelectorAll('.subject-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('uploadBtns').classList.add('locked');
 
   document.getElementById('uploadZone').style.display = '';
   document.getElementById('previewArea').classList.remove('show');
