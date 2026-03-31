@@ -720,7 +720,7 @@ Respond ONLY with a valid JSON object, no markdown, no extra text:
 
 function buildLessonPrompt(check){
   const languageNote = (check.language_detected === 'Filipino' || check.language_detected === 'Mixed')
-    ? 'IMPORTANT: The material may be written in Filipino/Tagalog. Read and understand it in Filipino, but write ALL your output in simple English for a Grade 4 student. EXCEPTION: flashcard fronts for Filipino subject must use the actual single Filipino word — do not translate card fronts to English, and do not use phrases or sentences.'
+    ? 'IMPORTANT: The material may be written in Filipino/Tagalog. Read and understand it in Filipino, but write ALL your output in simple English for a Grade 4 student. EXCEPTION: flashcard fronts must always be the Filipino/Tagalog word — never translate the front to English.'
     : '';
   const densityNote = check.content_density === 'dense'
     ? `IMPORTANT: This page has a lot of content. Focus ONLY on this core concept: "${check.focus_area}". Do not try to cover everything on the page.`
@@ -780,10 +780,12 @@ Respond ONLY with a valid JSON object (no markdown, no extra text):
   ],
   "flashcards": [
     // Exactly 8 flashcards.
-    // For Filipino: each card front must be a SINGLE Filipino WORD only — one word, never a phrase or sentence. Alternate between Filipino word → English meaning, and English word → Filipino meaning. Never put an English word on a card front for Filipino subject.
-    // For Araling Panlipunan: mix person → role/significance with event → date/meaning.
-    // For all other subjects: use concept → explanation pairs.
-    {"front": "Term or question (Filipino word, concept, or person name)", "back": "Definition, translation, or answer in simple words"}
+    // STRICT RULE FOR ALL 8 CARDS — NO EXCEPTIONS:
+    // Front of card = always the Filipino word (Tagalog). One single word only. Never English. Never a phrase.
+    // Back of card = always the English meaning or simple Filipino definition of that word.
+    // For Araling Panlipunan: front = key person's name or event name, back = who they are or what happened.
+    // For Mathematics and Science: front = the term or concept, back = simple explanation.
+    {"front": "Filipino word (Tagalog only, one word)", "back": "English meaning or simple definition"}
   ]
 }
 
