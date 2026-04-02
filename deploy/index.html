@@ -1271,6 +1271,7 @@ function resetAll(){
   document.querySelectorAll('.subject-btn').forEach(b => b.classList.remove('selected'));
   document.getElementById('uploadBtns').classList.add('locked');
   document.getElementById('confirmArea').style.display = 'none';
+  document.getElementById('confirmPrimaryBtn').onclick = null;
 
   document.getElementById('uploadZone').style.display = '';
   document.getElementById('previewArea').classList.remove('show');
