@@ -235,6 +235,27 @@ input[type=file]{display:none}
 .subject-btn-label{font-size:13px;font-weight:600}
 .upload-btns.locked .up-btn{opacity:0.4;pointer-events:none}
 
+/* CONFIRMATION CARD */
+.confirm-area{padding:12px 16px}
+.confirm-card{background:var(--card);border-radius:20px;padding:20px;border:2px solid var(--border);box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.confirm-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.confirm-thumb{width:80px;height:80px;object-fit:cover;border-radius:12px;border:2px solid var(--border);flex-shrink:0}
+.confirm-alon{display:flex;flex-direction:column;align-items:center;gap:2px}
+.confirm-alon-emoji{font-size:28px}
+.confirm-alon-label{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--sky);text-transform:uppercase}
+.confirm-headline{font-size:16px;font-weight:800;color:var(--night);margin:0 0 6px}
+.confirm-subtext{font-size:13px;color:var(--muted);margin:0 0 14px;line-height:1.5}
+.confirm-badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.confirm-badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.confirm-badge-sky{background:var(--sky);color:#fff}
+.confirm-badge-sun{background:var(--sun-lt);color:var(--night)}
+.confirm-badge-teal{background:var(--teal);color:#fff}
+.confirm-subject-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.confirm-actions{display:flex;flex-direction:column;align-items:center;gap:8px}
+.confirm-btn-primary{width:100%;padding:14px;border-radius:14px;background:var(--sky);color:#fff;border:none;font-size:15px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;transition:background .18s}
+.confirm-btn-primary:hover{background:var(--sky-dk)}
+.confirm-link{font-size:12px;color:var(--muted);text-decoration:underline;cursor:pointer}
+
 /* TALA FLASH */
 .tala-flash{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#FFF8E0,#FFF3C0);border:2px solid var(--sun);border-radius:50px;padding:8px 18px;font-size:13px;font-weight:800;color:#8B6000;display:none;align-items:center;gap:6px;z-index:100;box-shadow:0 4px 20px rgba(245,166,35,.3);animation:tala-pop .5s cubic-bezier(.34,1.6,.64,1) both}
 @keyframes tala-pop{from{opacity:0;transform:translateX(-50%) scale(.5)}to{opacity:1;transform:translateX(-50%) scale(1)}}
@@ -366,6 +387,48 @@ input[type=file]{display:none}
     </div>
   </div>
 
+  <!-- CONFIRMATION CARD -->
+  <div class="confirm-area" id="confirmArea" style="display:none">
+    <div class="confirm-card">
+      <div class="confirm-header">
+        <img id="confirmThumb" class="confirm-thumb" src="" alt="uploaded material"/>
+        <div class="confirm-alon">
+          <span class="confirm-alon-emoji">🦅</span>
+          <span class="confirm-alon-label">ALON</span>
+        </div>
+      </div>
+      <h3 class="confirm-headline" id="confirmHeadline"></h3>
+      <p class="confirm-subtext" id="confirmSubtext"></p>
+      <div class="confirm-badges" id="confirmBadges">
+        <span class="confirm-badge confirm-badge-teal" id="badgeContentType"></span>
+        <span class="confirm-badge confirm-badge-sky" id="badgeSubject"></span>
+        <span class="confirm-badge confirm-badge-sun" id="badgeGrade"></span>
+      </div>
+      <div class="confirm-subject-btns" id="confirmSubjectBtns" style="display:none">
+        <button class="subject-btn" onclick="proceedWithLesson('Filipino')">
+          <span class="subject-btn-icon">🇵🇭</span>
+          <span class="subject-btn-label">Filipino</span>
+        </button>
+        <button class="subject-btn" onclick="proceedWithLesson('Araling Panlipunan')">
+          <span class="subject-btn-icon">🗺️</span>
+          <span class="subject-btn-label">Araling Panlipunan</span>
+        </button>
+        <button class="subject-btn" onclick="proceedWithLesson('Mathematics')">
+          <span class="subject-btn-icon">🔢</span>
+          <span class="subject-btn-label">Mathematics</span>
+        </button>
+        <button class="subject-btn" onclick="proceedWithLesson('Science')">
+          <span class="subject-btn-icon">🔬</span>
+          <span class="subject-btn-label">Science</span>
+        </button>
+      </div>
+      <div class="confirm-actions">
+        <button class="confirm-btn-primary" id="confirmPrimaryBtn"></button>
+        <a class="confirm-link" id="confirmBaguhinLink" href="#" onclick="showConfirmSubjectBtns(); return false;" style="display:none">Hindi tama, baguhin</a>
+      </div>
+    </div>
+  </div>
+
   <!-- ALON INTRO -->
   <div class="alon-intro" id="alonIntro">
     <div class="intro-card">
@@ -411,6 +474,7 @@ const WORKER_URL   = "https://aralmate-proxy.maykel-clarin.workers.dev";
 const APP_SECRET   = "aralmate-2026"; // NOTE: visible in page source — acceptable for MVP, do NOT reuse this passphrase elsewhere
 let studentName = 'Estudyante';
 let selectedSubject = null;
+let pendingCheck    = null;
 
 // ── STATE ───────────────────────────────────────────────
 let currentImageBase64  = null;
@@ -696,7 +760,35 @@ Respond ONLY with a valid JSON object. No markdown, no extra text, no explanatio
     await sleep(600);
     setStep('step2','done','✓',`Topic found: ${check.topic}`);
 
-    // Step 3 — reading content
+    showConfirmation(check);
+
+  } catch(err){
+    console.error(err);
+    document.getElementById('processingArea').innerHTML = `
+      <div class="proc-card" style="background:linear-gradient(135deg,#7A1A1A,#A02020)">
+        <div class="proc-alon">🦅</div>
+        <div class="proc-text">
+          <h3>Something went wrong!</h3>
+          <p>${err.message}. Please try again with a clearer photo.</p>
+        </div>
+      </div>`;
+    setTimeout(resetAll, 3000);
+  }
+}
+
+async function proceedWithLesson(confirmedSubject){
+  selectedSubject = confirmedSubject;
+  const check = pendingCheck;
+
+  document.getElementById('confirmArea').style.display    = 'none';
+  document.getElementById('processingArea').classList.add('show');
+  document.getElementById('processingArea').style.display = '';
+
+  setStep('step3','wait','📖','Reading the content…');
+  setStep('step4','wait','✍️','Writing your lesson summary…');
+  setStep('step5','wait','🎮','Building quiz & flashcards…');
+
+  try {
     setStep('step3','active','📖','Reading the content carefully…');
     document.getElementById('procTitle').textContent = `Reading about "${check.topic}"`;
     document.getElementById('procSub').textContent = check.language_detected === 'Filipino' || check.language_detected === 'Mixed'
@@ -704,7 +796,6 @@ Respond ONLY with a valid JSON object. No markdown, no extra text, no explanatio
       : 'Going through the material…';
     await sleep(400);
 
-    // Step 2: Full lesson generation using what we learned
     setStep('step3','done','✓','Content understood');
     setStep('step4','active','✍️','Writing your lesson summary…');
 
@@ -741,6 +832,59 @@ Respond ONLY with a valid JSON object. No markdown, no extra text, no explanatio
   }
 }
 
+function showConfirmation(check){
+  pendingCheck = check;
+  const confidence = check.subject_confidence || 'low';
+
+  document.getElementById('confirmThumb').src = 'data:image/jpeg;base64,' + currentImageBase64;
+
+  const headline    = document.getElementById('confirmHeadline');
+  const subtext     = document.getElementById('confirmSubtext');
+  const badges      = document.getElementById('confirmBadges');
+  const subBtns     = document.getElementById('confirmSubjectBtns');
+  const baguhinLink = document.getElementById('confirmBaguhinLink');
+  const primaryBtn  = document.getElementById('confirmPrimaryBtn');
+
+  primaryBtn.style.display = '';
+
+  if(confidence === 'high'){
+    headline.textContent = 'Nakita ko ito! Tama ba?';
+    subtext.textContent  = `Mukhang ${check.content_type} ito para sa ${check.subject_detected}. ${check.grade_level_estimate} ang level.`;
+    badges.style.display      = 'flex';
+    subBtns.style.display     = 'none';
+    baguhinLink.style.display = 'inline';
+    primaryBtn.textContent    = 'Tama yan, Alon! ✓';
+    primaryBtn.onclick        = () => proceedWithLesson(check.subject_detected || selectedSubject);
+  } else if(confidence === 'medium'){
+    headline.textContent = `Mukhang ${check.subject_detected} ito — tama ba?`;
+    subtext.textContent  = 'Piliin ang tamang subject kung mali ako.';
+    badges.style.display      = 'flex';
+    subBtns.style.display     = 'grid';
+    baguhinLink.style.display = 'none';
+    primaryBtn.textContent    = 'Tama yan, Alon! ✓';
+    primaryBtn.onclick        = () => proceedWithLesson(check.subject_detected || selectedSubject);
+  } else {
+    headline.textContent = 'Hindi ko masigurado — ikaw na ang magturo sa akin!';
+    subtext.textContent  = 'Anong subject ito?';
+    badges.style.display      = 'none';
+    subBtns.style.display     = 'grid';
+    baguhinLink.style.display = 'none';
+    primaryBtn.style.display  = 'none';
+  }
+
+  document.getElementById('badgeContentType').textContent = '📄 ' + (check.content_type || 'unknown');
+  document.getElementById('badgeSubject').textContent     = '📚 ' + (check.subject_detected || selectedSubject);
+  document.getElementById('badgeGrade').textContent       = '🎓 ' + (check.grade_level_estimate || 'Grade 4');
+
+  document.getElementById('processingArea').style.display = 'none';
+  document.getElementById('confirmArea').style.display    = 'block';
+}
+
+function showConfirmSubjectBtns(){
+  document.getElementById('confirmSubjectBtns').style.display = 'grid';
+  document.getElementById('confirmBaguhinLink').style.display = 'none';
+}
+
 function buildLessonPrompt(check){
   const languageNote = (check.language_detected === 'Filipino' || check.language_detected === 'Mixed')
     ? 'IMPORTANT: The material may be written in Filipino/Tagalog. Read and understand it in Filipino, but write ALL your output in simple English for a Grade 4 student. EXCEPTION: flashcard fronts must always be the Filipino/Tagalog word — never translate the front to English.'
@@ -759,7 +903,7 @@ function buildLessonPrompt(check){
 Student profile: ${studentName}, Grade 4, private school Philippines.
 Known struggles: slow reading speed, limited Filipino vocabulary, reading comprehension difficulties.
 Priority subjects: Filipino language and Araling Panlipunan.
-You are analyzing a photo of ${studentName}'s ${selectedSubject} school material about: "${check.topic}".
+You are analyzing a ${check.content_type || 'photo'} from ${studentName}'s ${selectedSubject} class about: "${check.topic}".
 ${languageNote}
 ${densityNote}
 ${handwritingNote}
@@ -1123,8 +1267,10 @@ function resetAll(){
   isSimplified = false; currentCardIndex = 0; cardFlipped = false;
   quizAnswered = {};
   selectedSubject = null;
+  pendingCheck    = null;
   document.querySelectorAll('.subject-btn').forEach(b => b.classList.remove('selected'));
   document.getElementById('uploadBtns').classList.add('locked');
+  document.getElementById('confirmArea').style.display = 'none';
 
   document.getElementById('uploadZone').style.display = '';
   document.getElementById('previewArea').classList.remove('show');
