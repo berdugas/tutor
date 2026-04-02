@@ -235,26 +235,34 @@ input[type=file]{display:none}
 .subject-btn-label{font-size:13px;font-weight:600}
 .upload-btns.locked .up-btn{opacity:0.4;pointer-events:none}
 
-/* CONFIRMATION CARD */
+/* ── CONFIRMATION CARD ──────────────────────────── */
 .confirm-area{padding:12px 16px}
-.confirm-card{background:var(--card);border-radius:20px;padding:20px;border:2px solid var(--border);box-shadow:0 4px 16px rgba(0,0,0,.08)}
-.confirm-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.confirm-thumb{width:80px;height:80px;object-fit:cover;border-radius:12px;border:2px solid var(--border);flex-shrink:0}
-.confirm-alon{display:flex;flex-direction:column;align-items:center;gap:2px}
-.confirm-alon-emoji{font-size:28px}
-.confirm-alon-label{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--sky);text-transform:uppercase}
-.confirm-headline{font-size:16px;font-weight:800;color:var(--night);margin:0 0 6px}
-.confirm-subtext{font-size:13px;color:var(--muted);margin:0 0 14px;line-height:1.5}
-.confirm-badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
-.confirm-badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
-.confirm-badge-sky{background:var(--sky);color:#fff}
-.confirm-badge-sun{background:var(--sun-lt);color:var(--night)}
-.confirm-badge-teal{background:var(--teal);color:#fff}
-.confirm-subject-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
-.confirm-actions{display:flex;flex-direction:column;align-items:center;gap:8px}
+.confirm-card{background:var(--card);border-radius:20px;padding:18px;border:2px solid var(--border);box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.confirm-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.confirm-thumb{width:64px;height:64px;object-fit:cover;border-radius:10px;border:2px solid var(--border);flex-shrink:0}
+.confirm-alon{display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0}
+.confirm-alon-emoji{font-size:24px}
+.confirm-alon-label{font-size:9px;font-weight:800;letter-spacing:.08em;color:var(--sky);text-transform:uppercase}
+.confirm-header-text{flex:1}
+.confirm-headline{font-size:15px;font-weight:800;color:var(--night);margin:0 0 3px}
+.confirm-subtext{font-size:12px;color:var(--muted);margin:0;line-height:1.4}
+.confirm-rows{display:flex;flex-direction:column;gap:0;margin-bottom:16px;border:2px solid var(--border);border-radius:14px;overflow:hidden}
+.confirm-row{display:flex;align-items:center;gap:10px;padding:13px 14px;background:var(--card);cursor:pointer;transition:background .15s;border-bottom:1.5px solid var(--border)}
+#rowGrade{border-bottom:none}
+.confirm-row:hover{background:var(--bg)}
+.confirm-row-icon{font-size:16px;flex-shrink:0}
+.confirm-row-label{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;min-width:80px;flex-shrink:0}
+.confirm-row-value{flex:1;font-size:13px;font-weight:700;color:var(--ink)}
+.confirm-row-edit{font-size:13px;color:var(--muted);flex-shrink:0;transition:color .15s}
+.confirm-row-edit.confirmed{color:var(--leaf);font-style:normal}
+.confirm-row.open{background:var(--bg)}
+.confirm-row.open .confirm-row-edit{color:var(--sky)}
+.confirm-row-options{padding:10px 12px 12px;background:var(--bg);border-bottom:1.5px solid var(--border);display:flex;flex-wrap:wrap;gap:7px}
+.confirm-opt-btn{padding:7px 13px;border-radius:50px;border:2px solid var(--border);background:var(--card);font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:var(--ink);cursor:pointer;transition:all .15s}
+.confirm-opt-btn:hover{border-color:var(--sky);color:var(--sky);background:var(--bg)}
+.confirm-opt-btn.selected{border-color:var(--sky);background:var(--sky);color:#fff}
 .confirm-btn-primary{width:100%;padding:14px;border-radius:14px;background:var(--sky);color:#fff;border:none;font-size:15px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;transition:background .18s}
 .confirm-btn-primary:hover{background:var(--sky-dk)}
-.confirm-link{font-size:12px;color:var(--muted);text-decoration:underline;cursor:pointer}
 
 /* TALA FLASH */
 .tala-flash{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#FFF8E0,#FFF3C0);border:2px solid var(--sun);border-radius:50px;padding:8px 18px;font-size:13px;font-weight:800;color:#8B6000;display:none;align-items:center;gap:6px;z-index:100;box-shadow:0 4px 20px rgba(245,166,35,.3);animation:tala-pop .5s cubic-bezier(.34,1.6,.64,1) both}
@@ -390,42 +398,76 @@ input[type=file]{display:none}
   <!-- CONFIRMATION CARD -->
   <div class="confirm-area" id="confirmArea" style="display:none">
     <div class="confirm-card">
+
+      <!-- Header: thumbnail + Alon -->
       <div class="confirm-header">
         <img id="confirmThumb" class="confirm-thumb" src="" alt="uploaded material"/>
         <div class="confirm-alon">
           <span class="confirm-alon-emoji">🦅</span>
           <span class="confirm-alon-label">ALON</span>
         </div>
+        <div class="confirm-header-text">
+          <h3 class="confirm-headline">Nakita ko ito — tama ba?</h3>
+          <p class="confirm-subtext">I-tap ang mali para baguhin.</p>
+        </div>
       </div>
-      <h3 class="confirm-headline" id="confirmHeadline"></h3>
-      <p class="confirm-subtext" id="confirmSubtext"></p>
-      <div class="confirm-badges" id="confirmBadges">
-        <span class="confirm-badge confirm-badge-teal" id="badgeContentType"></span>
-        <span class="confirm-badge confirm-badge-sky" id="badgeSubject"></span>
-        <span class="confirm-badge confirm-badge-sun" id="badgeGrade"></span>
-      </div>
-      <div class="confirm-subject-btns" id="confirmSubjectBtns" style="display:none">
-        <button class="subject-btn" onclick="proceedWithLesson('Filipino')">
-          <span class="subject-btn-icon">🇵🇭</span>
-          <span class="subject-btn-label">Filipino</span>
-        </button>
-        <button class="subject-btn" onclick="proceedWithLesson('Araling Panlipunan')">
-          <span class="subject-btn-icon">🗺️</span>
-          <span class="subject-btn-label">Araling Panlipunan</span>
-        </button>
-        <button class="subject-btn" onclick="proceedWithLesson('Mathematics')">
-          <span class="subject-btn-icon">🔢</span>
-          <span class="subject-btn-label">Mathematics</span>
-        </button>
-        <button class="subject-btn" onclick="proceedWithLesson('Science')">
-          <span class="subject-btn-icon">🔬</span>
-          <span class="subject-btn-label">Science</span>
-        </button>
-      </div>
-      <div class="confirm-actions">
-        <button class="confirm-btn-primary" id="confirmPrimaryBtn"></button>
-        <a class="confirm-link" id="confirmBaguhinLink" href="#" onclick="showConfirmSubjectBtns(); return false;" style="display:none">Hindi tama, baguhin</a>
-      </div>
+
+      <!-- Attribute rows -->
+      <div class="confirm-rows">
+
+        <!-- Row 1: Content Type -->
+        <div class="confirm-row" id="rowContentType" onclick="toggleRow('contentType')">
+          <span class="confirm-row-icon">📄</span>
+          <span class="confirm-row-label">Uri ng materyal</span>
+          <span class="confirm-row-value" id="valContentType"></span>
+          <span class="confirm-row-edit" id="editContentType">✎</span>
+        </div>
+        <div class="confirm-row-options" id="optionsContentType" style="display:none">
+          <button class="confirm-opt-btn" onclick="selectAttr('contentType','narrative_story','📄 Story')">📄 Story</button>
+          <button class="confirm-opt-btn" onclick="selectAttr('contentType','worksheet','📋 Worksheet')">📋 Worksheet</button>
+          <button class="confirm-opt-btn" onclick="selectAttr('contentType','vocabulary_list','📝 Vocab List')">📝 Vocab List</button>
+          <button class="confirm-opt-btn" onclick="selectAttr('contentType','textbook_page','📖 Textbook')">📖 Textbook</button>
+          <button class="confirm-opt-btn" onclick="selectAttr('contentType','dialogue','💬 Dialogue')">💬 Dialogue</button>
+          <button class="confirm-opt-btn" onclick="selectAttr('contentType','poem','📜 Poem')">📜 Poem</button>
+          <button class="confirm-opt-btn" onclick="selectAttr('contentType','unknown','❓ Other')">❓ Other</button>
+        </div>
+
+        <!-- Row 2: Subject -->
+        <div class="confirm-row" id="rowSubject" onclick="toggleRow('subject')">
+          <span class="confirm-row-icon">📚</span>
+          <span class="confirm-row-label">Subject</span>
+          <span class="confirm-row-value" id="valSubject"></span>
+          <span class="confirm-row-edit" id="editSubject">✎</span>
+        </div>
+        <div class="confirm-row-options" id="optionsSubject" style="display:none">
+          <button class="confirm-opt-btn" onclick="selectAttr('subject','Filipino','🇵🇭 Filipino')">🇵🇭 Filipino</button>
+          <button class="confirm-opt-btn" onclick="selectAttr('subject','Araling Panlipunan','🗺️ Araling Panlipunan')">🗺️ Araling Panlipunan</button>
+          <button class="confirm-opt-btn" onclick="selectAttr('subject','Mathematics','🔢 Mathematics')">🔢 Mathematics</button>
+          <button class="confirm-opt-btn" onclick="selectAttr('subject','Science','🔬 Science')">🔬 Science</button>
+        </div>
+
+        <!-- Row 3: Grade Level -->
+        <div class="confirm-row" id="rowGrade" onclick="toggleRow('grade')">
+          <span class="confirm-row-icon">🎓</span>
+          <span class="confirm-row-label">Grade level</span>
+          <span class="confirm-row-value" id="valGrade"></span>
+          <span class="confirm-row-edit" id="editGrade">✎</span>
+        </div>
+        <div class="confirm-row-options" id="optionsGrade" style="display:none">
+          <button class="confirm-opt-btn" onclick="selectAttr('grade','Grade 1-2','🌱 Grade 1–2')">🌱 Grade 1–2</button>
+          <button class="confirm-opt-btn" onclick="selectAttr('grade','Grade 3','📗 Grade 3')">📗 Grade 3</button>
+          <button class="confirm-opt-btn" onclick="selectAttr('grade','Grade 4','📘 Grade 4')">📘 Grade 4</button>
+          <button class="confirm-opt-btn" onclick="selectAttr('grade','Grade 5-6','📙 Grade 5–6')">📙 Grade 5–6</button>
+          <button class="confirm-opt-btn" onclick="selectAttr('grade','unclear','🤷 Hindi alam')">🤷 Hindi alam</button>
+        </div>
+
+      </div><!-- /confirm-rows -->
+
+      <!-- Confirm button -->
+      <button class="confirm-btn-primary" id="confirmPrimaryBtn" onclick="proceedWithLesson()">
+        Tama na, ituloy! ✓
+      </button>
+
     </div>
   </div>
 
@@ -474,7 +516,10 @@ const WORKER_URL   = "https://aralmate-proxy.maykel-clarin.workers.dev";
 const APP_SECRET   = "aralmate-2026"; // NOTE: visible in page source — acceptable for MVP, do NOT reuse this passphrase elsewhere
 let studentName = 'Estudyante';
 let selectedSubject = null;
-let pendingCheck    = null;
+let pendingCheck         = null;
+let confirmedContentType = null;
+let confirmedSubject     = null;
+let confirmedGrade       = null;
 
 // ── STATE ───────────────────────────────────────────────
 let currentImageBase64  = null;
@@ -776,9 +821,12 @@ Respond ONLY with a valid JSON object. No markdown, no extra text, no explanatio
   }
 }
 
-async function proceedWithLesson(confirmedSubject){
+async function proceedWithLesson(){
   selectedSubject = confirmedSubject;
   const check = pendingCheck;
+  check.content_type         = confirmedContentType;
+  check.subject_detected     = confirmedSubject;
+  check.grade_level_estimate = confirmedGrade;
 
   document.getElementById('confirmArea').style.display    = 'none';
   document.getElementById('processingArea').classList.add('show');
@@ -832,57 +880,89 @@ async function proceedWithLesson(confirmedSubject){
   }
 }
 
+const CONTENT_TYPE_LABELS = {
+  'narrative_story': '📄 Story',
+  'worksheet':       '📋 Worksheet',
+  'vocabulary_list': '📝 Vocab List',
+  'textbook_page':   '📖 Textbook',
+  'dialogue':        '💬 Dialogue',
+  'poem':            '📜 Poem',
+  'unknown':         '❓ Other'
+};
+
+const GRADE_LABELS = {
+  'Grade 1-2': '🌱 Grade 1–2',
+  'Grade 3':   '📗 Grade 3',
+  'Grade 4':   '📘 Grade 4',
+  'Grade 5-6': '📙 Grade 5–6',
+  'unclear':   '🤷 Hindi alam'
+};
+
 function showConfirmation(check){
   pendingCheck = check;
-  const confidence = check.subject_confidence || 'low';
+
+  confirmedContentType = check.content_type        || 'unknown';
+  confirmedSubject     = check.subject_detected     || selectedSubject;
+  confirmedGrade       = check.grade_level_estimate || 'Grade 4';
 
   document.getElementById('confirmThumb').src = 'data:image/jpeg;base64,' + currentImageBase64;
 
-  const headline    = document.getElementById('confirmHeadline');
-  const subtext     = document.getElementById('confirmSubtext');
-  const badges      = document.getElementById('confirmBadges');
-  const subBtns     = document.getElementById('confirmSubjectBtns');
-  const baguhinLink = document.getElementById('confirmBaguhinLink');
-  const primaryBtn  = document.getElementById('confirmPrimaryBtn');
+  document.getElementById('valContentType').textContent = CONTENT_TYPE_LABELS[confirmedContentType] || confirmedContentType;
+  document.getElementById('valSubject').textContent     = confirmedSubject;
+  document.getElementById('valGrade').textContent       = GRADE_LABELS[confirmedGrade] || confirmedGrade;
 
-  primaryBtn.style.display = '';
-
-  if(confidence === 'high'){
-    headline.textContent = 'Nakita ko ito! Tama ba?';
-    subtext.textContent  = `Mukhang ${check.content_type} ito para sa ${check.subject_detected}. ${check.grade_level_estimate} ang level.`;
-    badges.style.display      = 'flex';
-    subBtns.style.display     = 'none';
-    baguhinLink.style.display = 'inline';
-    primaryBtn.textContent    = 'Tama yan, Alon! ✓';
-    primaryBtn.onclick        = () => proceedWithLesson(check.subject_detected || selectedSubject);
-  } else if(confidence === 'medium'){
-    headline.textContent = `Mukhang ${check.subject_detected} ito — tama ba?`;
-    subtext.textContent  = 'Piliin ang tamang subject kung mali ako.';
-    badges.style.display      = 'flex';
-    subBtns.style.display     = 'grid';
-    baguhinLink.style.display = 'none';
-    primaryBtn.textContent    = 'Tama yan, Alon! ✓';
-    primaryBtn.onclick        = () => proceedWithLesson(check.subject_detected || selectedSubject);
-  } else {
-    headline.textContent = 'Hindi ko masigurado — ikaw na ang magturo sa akin!';
-    subtext.textContent  = 'Anong subject ito?';
-    badges.style.display      = 'none';
-    subBtns.style.display     = 'grid';
-    baguhinLink.style.display = 'none';
-    primaryBtn.style.display  = 'none';
-  }
-
-  document.getElementById('badgeContentType').textContent = '📄 ' + (check.content_type || 'unknown');
-  document.getElementById('badgeSubject').textContent     = '📚 ' + (check.subject_detected || selectedSubject);
-  document.getElementById('badgeGrade').textContent       = '🎓 ' + (check.grade_level_estimate || 'Grade 4');
+  markSelected('contentType', confirmedContentType);
+  markSelected('subject',     confirmedSubject);
+  markSelected('grade',       confirmedGrade);
 
   document.getElementById('processingArea').style.display = 'none';
   document.getElementById('confirmArea').style.display    = 'block';
 }
 
-function showConfirmSubjectBtns(){
-  document.getElementById('confirmSubjectBtns').style.display = 'grid';
-  document.getElementById('confirmBaguhinLink').style.display = 'none';
+function toggleRow(attr){
+  const cap        = attr.charAt(0).toUpperCase() + attr.slice(1);
+  const allOptions = ['optionsContentType','optionsSubject','optionsGrade'];
+  const allRows    = ['rowContentType','rowSubject','rowGrade'];
+  const panel      = document.getElementById('options' + cap);
+  const row        = document.getElementById('row'     + cap);
+  const isOpen     = panel.style.display !== 'none';
+
+  allOptions.forEach(id => document.getElementById(id).style.display = 'none');
+  allRows.forEach(id    => document.getElementById(id).classList.remove('open'));
+
+  if(!isOpen){
+    panel.style.display = 'flex';
+    row.classList.add('open');
+  }
+}
+
+function selectAttr(attr, value, label){
+  if(attr === 'contentType') confirmedContentType = value;
+  if(attr === 'subject')     confirmedSubject     = value;
+  if(attr === 'grade')       confirmedGrade       = value;
+
+  const cap    = attr.charAt(0).toUpperCase() + attr.slice(1);
+  const valEl  = document.getElementById('val'  + cap);
+  const editEl = document.getElementById('edit' + cap);
+  valEl.textContent  = label;
+  editEl.textContent = '✓';
+  editEl.classList.add('confirmed');
+
+  markSelected(attr, value);
+
+  document.getElementById('options' + cap).style.display = 'none';
+  document.getElementById('row'     + cap).classList.remove('open');
+}
+
+function markSelected(attr, value){
+  const cap   = attr.charAt(0).toUpperCase() + attr.slice(1);
+  const panel = document.getElementById('options' + cap);
+  panel.querySelectorAll('.confirm-opt-btn').forEach(btn => {
+    btn.classList.remove('selected');
+    if(btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(`'${value}'`)){
+      btn.classList.add('selected');
+    }
+  });
 }
 
 function buildLessonPrompt(check){
@@ -1266,12 +1346,20 @@ function resetAll(){
   currentImageBase64 = currentImageType = lessonData = null;
   isSimplified = false; currentCardIndex = 0; cardFlipped = false;
   quizAnswered = {};
-  selectedSubject = null;
-  pendingCheck    = null;
+  selectedSubject      = null;
+  pendingCheck         = null;
+  confirmedContentType = null;
+  confirmedSubject     = null;
+  confirmedGrade       = null;
   document.querySelectorAll('.subject-btn').forEach(b => b.classList.remove('selected'));
   document.getElementById('uploadBtns').classList.add('locked');
   document.getElementById('confirmArea').style.display = 'none';
   document.getElementById('confirmPrimaryBtn').onclick = null;
+  ['editContentType','editSubject','editGrade'].forEach(id => {
+    const el = document.getElementById(id);
+    el.textContent = '✎';
+    el.classList.remove('confirmed');
+  });
 
   document.getElementById('uploadZone').style.display = '';
   document.getElementById('previewArea').classList.remove('show');
