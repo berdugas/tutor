@@ -169,8 +169,7 @@ input[type=file]{display:none}
 .intro-bubble{flex:1}
 .intro-label{font-size:10px;font-weight:800;color:var(--sky-lt);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
 .intro-text{font-size:13px;font-weight:600;color:white;line-height:1.6}
-.intro-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.intro-pill{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.2);border-radius:50px;padding:3px 10px;font-size:11px;font-weight:700;color:white}
+
 
 /* READABILITY WARNING */
 .readability-note{display:none;margin:10px 16px 0;background:#FFF8E0;border:2px solid var(--warn);border-radius:12px;padding:10px 14px;font-size:12px;font-weight:600;color:#7A5200;line-height:1.5}
@@ -565,7 +564,7 @@ input[type=file]{display:none}
       <div class="intro-bubble">
         <div class="intro-label">🦅 Alon says</div>
         <div class="intro-text" id="introText"></div>
-        <div class="intro-pills" id="introPills"></div>
+
       </div>
     </div>
   </div>
@@ -1172,13 +1171,7 @@ function showResults(check){
   // Intro bubble
   document.getElementById('introText').textContent = lessonData.intro;
   const pills = document.getElementById('introPills');
-  pills.innerHTML = `
-    <div class="intro-pill">📚 ${lessonData.subject}</div>
-    <div class="intro-pill">🎯 ${lessonData.topic}</div>
-    ${check.language_detected !== 'English' ? `<div class="intro-pill">🌏 ${check.language_detected} material</div>` : ''}
-    ${check.image_quality === 'poor' ? '<div class="intro-pill">⚠️ Low quality photo</div>' : ''}
-    <div class="intro-pill">🔵 Kimi K2.5</div>
-  `;
+  pills.innerHTML = '';
   document.getElementById('alonIntro').classList.add('show');
 
   // Unclear content note
